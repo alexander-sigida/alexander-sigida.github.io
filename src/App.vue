@@ -1,51 +1,150 @@
 <template>
- 	<div class="container">
-		<app-header :quoteCount="quotes.length" :maxQuotes="maxQuotes"></app-header>
-		<app-new-quote @quoteAdded="addNewQuote"></app-new-quote>
- 		<app-quote-grid :quotes="quotes" @quoteDeleted="deleteQuoteInArray"></app-quote-grid>
- 		<div class="row">
- 			<div class="col-xs-12 text-center">
- 				<div class="alert alert-info">Info: click a Quote to delete it!</div>
- 			</div>
- 		</div>
- 	</div>
+	<div class="container">
+		<div class="row mgt40">
+			<div class="col text-center">
+				<h1>My awesome everyday To Do List</h1>
+			</div>
+		</div>
+		<div class="row mgt40">
+			<div class="col-12">
+				<form>
+					<p class='mgb10'>Add your tasks for today below</p>
+					<input class='mgb10 form-control' type="text" v-model="task">
+					<button class="btn btn-primary" @click.prevent="addNewTask(task)">Add</button>
+				</form>
+			</div>
+		</div>
+
+
+
+		<!-- separate component -->
+		<div class="row mgt40">
+			<div class="col-12">
+				<h2 class='text-center'>Your tasks for today</h2>
+			</div>
+			<div v-if="anyActiveTasks" class="col-12">	
+				<div class='tasks-wrapper'>
+					<div v-for="(task, index) in tasks" class='mgb10 task-wrapper'>
+						<div  class="input-group">
+							<span class="input-group-btn">
+								<button class="btn btn-lg btn-success" @click.prevent="completeTask(index)"  type="button">Done</button>
+							</span>
+							<input type="text" class="form-control task" :value="task" aria-label="Search for...">
+							<span class="input-group-btn">
+								<button class="btn btn-lg btn-danger" @click.prevent="deleteTask(index)" type="button">Delete</button>
+							</span>
+						</div>
+					</div>
+				</div>
+				
+			</div>
+			<div v-else class='col-12 text-center mgt40'>
+				<div class='alert alert-success'>
+					You have no active tasks for today :)
+				</div>
+			</div>
+		</div>
+		<!-- /// -->
+
+
+
+		<div class="row mgt40">
+			<div class="col-12">
+				<h2 class='text-center'>Completed tasks</h2>
+			</div>
+			<div v-if="anyCompletedTasks" class='col-12'>
+				<div class="tasks-wrapper">
+					<div v-for="(completedTask, index) in completedTasks" class="col-12 mgb10">
+						<div class="alert alert-success" role="alert">
+							{{ completedTask }} 
+						</div>
+					</div>
+				</div>
+			</div>
+			<div v-else class="col-12 mgt40 text-center">
+				<div class="alert alert-secondary" role="alert">
+					You have no completed tasks today
+				</div>
+			</div>
+		</div>
+	</div>
 </template>
 
 <script>
-	import Header from './components/Header.vue';
-	import QuoteGrid from './components/QuoteGrid.vue';
-	import NewQuote from './components/NewQuote.vue';
-
-	export default {
+	export default ({
 		data: function() {
 			return {
-				quotes: [
-					'Just a Quote to see something',
+				tasks: [
+					'Fill the ToDo List',
 				],
-				maxQuotes: 10
+				task: '',
+				completedTasks: [
+				]
 			}
-		},
-		components: {
-			appQuoteGrid: QuoteGrid,
-			appNewQuote: NewQuote,
-			appHeader: Header
 		},
 		methods: {
-			addNewQuote(quote) {
-				if (this.quotes.length >= this.maxQuotes) {
-					alert("You've reached maximum number of quotes!");
-				} else {
-					this.quotes.push(quote);
-				}
+			addNewTask(task) {
+				this.tasks.push(task);
+				this.task = "";
 			},
-			deleteQuoteInArray(index) {
-				this.quotes.splice(index, 1);
+			deleteTask(index) {
+				this.tasks.splice(index, 1);
+			},
+			completeTask(index) {
+				const completedTask = this.tasks.splice(index, 1);
+				this.completedTasks.push(completedTask[0]);
 			}
 		},
-
-	}
+		computed: {
+			anyActiveTasks: function() {
+				if ( this.tasks.length == 0 ) {
+					return false
+				} else {
+					return true
+				}	
+			},
+			anyCompletedTasks: function() {
+				if ( this.completedTasks.length == 0 ) {
+					return false
+				} else {
+					return true
+				}	
+			}
+		}
+	})
 </script>
 
-<style>
-
+<style scoped>
+	.mgt40 {
+		margin-top: 40px;
+	}
+	.mgb40 {
+		margin-bottom: 40px;
+	}
+	.mgb10 {
+		margin-bottom: 10px;
+	}
+	.tasks-wrapper {
+		margin-top: 40px;
+	}
+	.task-wrapper:last-child {
+		margin-bottom: 0;
+	}
+	.task {
+		line-height: 30px;
+		font-size: 20px;
+		font-weight: 500;
+		padding-right: 32px;
+	}
+	.icon-task-delete {
+		font-size: 40px;
+		top: -15px;
+		right: 12px;
+		position: absolute;
+		cursor: pointer;
+		z-index: 4;
+	}
+	button {
+		cursor: pointer;
+	}
 </style>

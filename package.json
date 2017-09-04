@@ -1,6 +1,6 @@
 {
-  "name": "quotes",
-  "description": "A Vue.js project",
+  "name": "todo list",
+  "description": "A Vue.js based ToDo app",
   "version": "1.0.0",
   "author": "Alexander Sigida <alexander.sigida17@gmail.com>",
   "private": true,
