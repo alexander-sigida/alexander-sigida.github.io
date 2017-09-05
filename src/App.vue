@@ -19,53 +19,67 @@
 
 		<!-- separate component -->
 		<div class="row mgt40">
+
 			<div class="col-12">
 				<h2 class='text-center'>Your tasks for today</h2>
 			</div>
-			<div v-if="anyActiveTasks" class="col-12">	
-				<div class='tasks-wrapper'>
-					<div v-for="(task, index) in tasks" class='mgb10 task-wrapper'>
-						<div  class="input-group">
-							<span class="input-group-btn">
-								<button class="btn btn-lg btn-success" @click.prevent="completeTask(index)"  type="button">Done</button>
-							</span>
-							<input type="text" class="form-control task" :value="task" aria-label="Search for...">
-							<span class="input-group-btn">
-								<button class="btn btn-lg btn-danger" @click.prevent="deleteTask(index)" type="button">Delete</button>
-							</span>
-						</div>
+			<transition enter-active-class="animated fadeIn fast" leave-active-class="animated fadeOut fast" mode="out-in">
+				<div key='activeTasks' v-if="anyActiveTasks" class="col-12">	
+					<div class='tasks-wrapper'>
+						<transition-group enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
+							<div key='index' v-for="(task, index) in tasks" class='mgb10 task-wrapper'>
+								<div  class="input-group">
+									<span class="input-group-btn">
+										<button class="btn btn-lg btn-success" @click.prevent="completeTask(index)"  type="button">Done</button>
+									</span>
+									<input type="text" class="form-control task" :value="task" aria-label="Search for...">
+									<span class="input-group-btn">
+										<button class="btn btn-lg btn-danger" @click.prevent="deleteTask(index)" type="button">Delete</button>
+									</span>
+								</div>
+							</div>
+						</transition-group>
 					</div>
 				</div>
-				
-			</div>
-			<div v-else class='col-12 text-center mgt40'>
-				<div class='alert alert-success'>
-					You have no active tasks for today :)
+
+				<div key='noActiveTasks' v-else class='col-12 text-center mgt40'>
+					<div class='alert alert-success'>
+						You have no active tasks for today :)
+					</div>
 				</div>
-			</div>
+			</transition>	
+
 		</div>
 		<!-- /// -->
 
 
 
 		<div class="row mgt40">
+
 			<div class="col-12">
 				<h2 class='text-center'>Completed tasks</h2>
 			</div>
-			<div v-if="anyCompletedTasks" class='col-12'>
-				<div class="tasks-wrapper">
-					<div v-for="(completedTask, index) in completedTasks" class="col-12 mgb10">
-						<div class="alert alert-success" role="alert">
-							{{ completedTask }} 
-						</div>
+			<transition enter-active-class="animated fadeIn fast" leave-active-class="animated fadeOut fast" mode="out-in">
+				<div key='completedTasks' v-if="anyCompletedTasks" class='col-12'>
+					<div class="tasks-wrapper">
+						<transition-group enter-active-class="animated fadeIn" leave-active-class="animated fadeOut" mode="out-in">
+							<div key="index" v-for="(completedTask, index) in completedTasks" class="mgb10">
+								<div class="alert alert-success" role="alert">
+									{{ completedTask }} 
+								</div>
+							</div>
+						</transition-group>
 					</div>
 				</div>
-			</div>
-			<div v-else class="col-12 mgt40 text-center">
-				<div class="alert alert-secondary" role="alert">
-					You have no completed tasks today
+
+				<div key='noCompletedTasks' v-else class="col-12 mgt40 text-center">
+					<div class="alert alert-secondary" role="alert">
+						You have no completed tasks today
+					</div>
 				</div>
-			</div>
+			</transition>
+			
+
 		</div>
 	</div>
 </template>
@@ -146,5 +160,14 @@
 	}
 	button {
 		cursor: pointer;
+	}
+	.fadeIn {
+		transition: .2s;
+	}
+	.fadeOut {
+		transition: .2s;
+	}
+	.fast {
+		transition: .1s;
 	}
 </style>
