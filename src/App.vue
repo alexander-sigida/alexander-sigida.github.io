@@ -27,7 +27,7 @@
 				<div key='activeTasks' v-if="anyActiveTasks" class="col-12">	
 					<div class='tasks-wrapper'>
 						<transition-group enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
-							<div key='index' v-for="(task, index) in tasks" class='mgb10 task-wrapper'>
+							<div key='index' v-for="(task, index) in activeTasks" class='mgb10 task-wrapper'>
 								<div  class="input-group">
 									<span class="input-group-btn">
 										<button class="btn btn-lg btn-success" @click.prevent="completeTask(index)"  type="button">Done</button>
@@ -59,6 +59,7 @@
 			<div class="col-12">
 				<h2 class='text-center'>Completed tasks</h2>
 			</div>
+
 			<transition enter-active-class="animated fadeIn fast" leave-active-class="animated fadeOut fast" mode="out-in">
 				<div key='completedTasks' v-if="anyCompletedTasks" class='col-12'>
 					<div class="tasks-wrapper">
@@ -70,6 +71,7 @@
 							</div>
 						</transition-group>
 					</div>
+					<p><button id='clearTasksButton' @click="clearCompletedTasks" class="btn btn-primary">Clear</button></p>
 				</div>
 
 				<div key='noCompletedTasks' v-else class="col-12 mgt40 text-center">
@@ -77,8 +79,7 @@
 						You have no completed tasks today
 					</div>
 				</div>
-			</transition>
-			
+			</transition>			
 
 		</div>
 	</div>
@@ -88,30 +89,68 @@
 	export default ({
 		data: function() {
 			return {
-				tasks: [
-					'Fill the ToDo List',
-				],
+				activeTasks: [],
 				task: '',
 				completedTasks: [
-				]
+				],
+				typeOfTasksToUpdate: {
+					databaseArrayName: '',
+					jsArray: []
+				},
+				empty: []
+
 			}
 		},
 		methods: {
+			updateDataBase(dataBaseNode, jsArray) {
+				this.$http.put('https://vuejs-http-alexander.firebaseio.com/' + dataBaseNode + '.json', jsArray).then(response => {
+					console.log(response);	
+				}, error => {
+					console.log(error);
+				}); 
+			},
+			fetchData(dataBaseNode, jsArray) {
+				this.$http.get('https://vuejs-http-alexander.firebaseio.com/' + dataBaseNode + '.json').then(response => {
+					return response.json();	
+				})
+					.then(returnedData => {
+						for (let counter in returnedData) {
+							jsArray.push(returnedData[counter]);
+						}
+					})
+			},
 			addNewTask(task) {
-				this.tasks.push(task);
+				this.activeTasks.push(task);
+				/*
+				this.typeOfTasksToUpdate.databaseArrayName = 'activeTasks';
+				this.typeOfTasksToUpdate.jsArray = this.activeTasks;
+				*/
+				this.updateDataBase('activeTasks', this.activeTasks);
 				this.task = "";
 			},
 			deleteTask(index) {
-				this.tasks.splice(index, 1);
+				this.activeTasks.splice(index, 1);
+				this.updateDataBase('activeTasks', this.activeTasks);
+				this.updateDataBase();
 			},
 			completeTask(index) {
-				const completedTask = this.tasks.splice(index, 1);
+				const completedTask = this.activeTasks.splice(index, 1);
 				this.completedTasks.push(completedTask[0]);
+				// delete from activeTasks on the database
+				this.updateDataBase('activeTasks', this.activeTasks);
+				this.updateDataBase();
+				// update completedTasks
+				this.updateDataBase('completedTasks', this.completedTasks);
+				this.updateDataBase();
+			},
+			clearCompletedTasks() {
+				this.completedTasks.splice(0, this.completedTasks.length); 
+				this.updateDataBase('completedTasks', this.empty);
 			}
 		},
 		computed: {
 			anyActiveTasks: function() {
-				if ( this.tasks.length == 0 ) {
+				if ( this.activeTasks.length == 0 ) {
 					return false
 				} else {
 					return true
@@ -124,7 +163,12 @@
 					return true
 				}	
 			}
+		},
+		created() {
+			this.fetchData('activeTasks', this.activeTasks);
+			this.fetchData('completedTasks', this.completedTasks);
 		}
+		 
 	})
 </script>
 
@@ -169,5 +213,8 @@
 	}
 	.fast {
 		transition: .1s;
+	}
+	#clearTasksButton {
+		float: right;
 	}
 </style>
