@@ -1,4 +1,4 @@
-# quotes
+# My everyday ToDo List
 
 > A Vue.js project
 
